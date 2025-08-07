@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starlight Study: ASWB Exam Prep</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0c1445;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .card-flip-container { perspective: 1000px; }
+        .card-flipper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flip-container.flipped .card-flipper { transform: rotateY(180deg); }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            overflow-y: auto;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+            background-color: #3b82f6; /* blue-500 */
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-primary { @apply bg-cyan-400 text-slate-900 font-bold py-2 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-cyan-300/50; }
+        .btn-secondary { @apply bg-pink-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-pink-400/50; }
+        .btn-gemini { @apply bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-purple-400/50; }
+        .screen { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader { border: 4px solid rgba(255, 255, 255, 0.3); border-top-color: #67e8f9; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(67, 232, 249, 0.5); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(67, 232, 249, 0.8); }
+    </style>
+</head>
+<body class="w-full min-h-screen">
+    <div id="starfield" class="fixed top-0 left-0 w-full h-full z-[-1]"></div>
+    <div id="app" class="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto h-full overflow-y-auto custom-scrollbar">
+        
+        <!-- DASHBOARD SCREEN -->
+        <div id="dashboard-screen" class="screen active">
+            <header class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-white text-center sm:text-left">Starlight Study</h1>
+                    <p class="text-cyan-300 text-center sm:text-left">Your Mission to ASWB Licensure</p>
+                </div>
+                <div class="glassmorphism rounded-full px-4 py-2 text-lg font-semibold flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-300 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                    <span id="stardust-count">0</span> Stardust
+                </div>
+            </header>
+            <main>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="lg:col-span-2 glassmorphism p-6 rounded-xl flex flex-col justify-center">
+                        <h2 class="text-xl font-bold text-white mb-4">Daily Mission Progress</h2>
+                        <div class="w-full bg-slate-700 rounded-full h-4 mb-2">
+                            <div id="daily-progress-bar" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-4 rounded-full" style="width: 0%;"></div>
+                        </div>
+                        <p id="daily-progress-text" class="text-center text-slate-300 mb-4">Complete 5 activities to reach your daily goal!</p>
+                        <button id="study-plan-button" class="btn-gemini self-center">✨ Get a Personalized Study Plan</button>
+                    </div>
+                    <div id="adaptive-focus-card" class="bg-gradient-to-br from-pink-500 to-purple-600 p-6 rounded-xl shadow-lg flex flex-col justify-center items-center cursor-pointer hover:scale-105 transition-transform">
+                        <h2 class="text-xl font-bold text-white mb-2">Priority Mission!</h2>
+                        <p class="text-purple-200 mb-4 text-center">Our sensors indicate you should focus on this area:</p>
+                        <p id="adaptive-focus-domain" class="text-2xl font-semibold text-white text-center">Ready to Start!</p>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-4">Explore the Knowledge Constellations</h2>
+                <div id="domain-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </main>
+             <footer class="text-center mt-8 space-x-4">
+                <button id="reminder-button" class="btn-secondary">Set Daily Reminder</button>
+                <button id="reset-progress-button" class="btn-secondary">Reset Progress</button>
+            </footer>
+        </div>
+
+        <!-- ACTIVITY SCREEN -->
+        <div id="activity-screen" class="screen">
+             <header class="flex items-center mb-6">
+                <button id="back-to-dashboard" class="btn-secondary mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
+                </button>
+                <div>
+                    <h1 id="activity-title" class="text-3xl font-bold text-white">Activity Title</h1>
+                    <p id="activity-subtitle" class="text-cyan-300">Domain Subtitle</p>
+                </div>
+            </header>
+            <main id="activity-content" class="glassmorphism p-6 rounded-xl min-h-[60vh] flex flex-col items-center justify-center"></main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+        <div class="glassmorphism p-8 rounded-xl text-center max-w-md mx-4 max-h-[80vh] flex flex-col">
+            <div id="modal-message" class="text-lg text-white mb-6 whitespace-pre-wrap overflow-y-auto custom-scrollbar text-left"></div>
+            <div id="modal-buttons" class="flex justify-center gap-4 mt-auto">
+                 <button id="modal-close-button" class="btn-primary">Got it!</button>
+            </div>
+        </div>
+    </div>
+    <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50 hidden">
+        <div class="loader"></div>
+        <p class="text-white text-lg mt-4">Contacting Celestial AI...</p>
+    </div>
+
+    <script>
+        // ===================================================================
+        // == APP STATE & DATA                                              ==
+        // ===================================================================
+        
+        function createDefaultAppState() {
+            return {
+                stardust: 0,
+                dailyActivitiesCompleted: 0,
+                dailyGoal: 5,
+                userData: {
+                    stats: {
+                        domain1: { correct: 0, total: 0, accuracy: 0, name: "Human Development, Diversity, and Behavior" },
+                        domain2: { correct: 0, total: 0, accuracy: 0, name: "Assessment, Diagnosis, and Treatment Planning" },
+                        domain3: { correct: 0, total: 0, accuracy: 0, name: "Psychotherapy, Clinical Interventions, and Case Management" },
+                        domain4: { correct: 0, total: 0, accuracy: 0, name: "Professional Values and Ethics" },
+                    }
+                }
+            };
+        }
+        
+        let appState = createDefaultAppState();
+
+        const content = {
+            domain1: {
+                name: "Human Development, Diversity, and Behavior",
+                quiz: [
+                    { q: "Which of Erikson's stages focuses on developing a sense of self and personal identity during adolescence?", a: ["Identity vs. Role Confusion", "Intimacy vs. Isolation", "Trust vs. Mistrust", "Industry vs. Inferiority"], correct: 0 },
+                    { q: "A parent who establishes strict rules but is not responsive to their child's questions is demonstrating which parenting style?", a: ["Authoritarian", "Authoritative", "Permissive", "Uninvolved"], correct: 0 },
+                ],
+                flashcards: [
+                    { term: "Piaget's Formal Operations Stage", def: "Begins around age 11. Characterized by the ability to think abstractly, plan for the future, and think hypothetically." },
+                    { term: "Attachment Theory (Bowlby)", def: "Describes the lasting psychological connectedness between human beings, originating from the infant-caregiver bond which provides safety and security." },
+                ]
+            },
+            domain2: {
+                name: "Assessment, Diagnosis, and Treatment Planning",
+                 quiz: [
+                    { q: "A structured way of observing and describing a client's current state of mind is called a:", a: ["Mental Status Exam (MSE)", "Biopsychosocial Assessment", "Risk Assessment", "Functional Assessment"], correct: 0 },
+                    { q: "What is the primary purpose of a differential diagnosis?", a: ["To provide a definitive label", "To distinguish between two or more conditions that share similar symptoms", "To determine insurance eligibility", "To select the primary therapeutic modality"], correct: 1 },
+                ],
+                flashcards: [
+                    { term: "SMART Goals", def: "An acronym for Specific, Measurable, Achievable, Relevant, and Time-bound, used in creating effective treatment plan objectives." },
+                    { term: "SOAP Notes", def: "A documentation method: Subjective, Objective, Assessment, Plan." },
+                ]
+            },
+            domain3: {
+                name: "Psychotherapy, Clinical Interventions, and Case Management",
+                quiz: [
+                    { q: "A social worker who helps a client by identifying, locating, and linking them to needed resources is primarily fulfilling which role?", a: ["Broker", "Advocate", "Counselor", "Mediator"], correct: 0 },
+                    { q: "The 'miracle question' is a technique most commonly used in which type of therapy?", a: ["Narrative Therapy", "Cognitive Behavioral Therapy", "Solution-Focused Brief Therapy", "Dialectical Behavior Therapy"], correct: 2 },
+                ],
+                flashcards: [
+                    { term: "Transference", def: "The process where a client unconsciously redirects feelings and desires from a person in their past onto the therapist." },
+                    { term: "Motivational Interviewing", def: "A collaborative, person-centered counseling approach designed to help clients find the motivation to make a positive behavior change." },
+                ]
+            },
+            domain4: {
+                name: "Professional Values and Ethics",
+                quiz: [
+                    { q: "A social worker receives a subpoena for a client's records. What should be their first step?", a: ["Immediately send the records", "Contact the client to discuss the subpoena", "Destroy the records", "Respond to the court by claiming privilege"], correct: 3 },
+                    { q: "The 'Duty to Warn' legal precedent was established by which court case?", a: ["Roe v. Wade", "Brown v. Board of Education", "Tarasoff v. Regents of University of California", "Miranda v. Arizona"], correct: 2 },
+                ],
+                flashcards: [
+                    { term: "Dual Relationships", def: "An ethical boundary issue where a social worker has a relationship with a client outside of the professional context." },
+                    { term: "Informed Consent", def: "The process of ensuring a client is aware of the services, risks, costs, alternatives, and their right to refuse or withdraw consent before treatment begins." },
+                ]
+            }
+        };
+        
+        const elements = {
+            app: document.getElementById('app'),
+            starfield: document.getElementById('starfield'),
+            dashboardScreen: document.getElementById('dashboard-screen'),
+            stardustCount: document.getElementById('stardust-count'),
+            dailyProgressBar: document.getElementById('daily-progress-bar'),
+            dailyProgressText: document.getElementById('daily-progress-text'),
+            studyPlanBtn: document.getElementById('study-plan-button'),
+            adaptiveFocusCard: document.getElementById('adaptive-focus-card'),
+            adaptiveFocusDomain: document.getElementById('adaptive-focus-domain'),
+            domainCardsContainer: document.getElementById('domain-cards-container'),
+            reminderBtn: document.getElementById('reminder-button'),
+            resetProgressBtn: document.getElementById('reset-progress-button'),
+            activityScreen: document.getElementById('activity-screen'),
+            activityTitle: document.getElementById('activity-title'),
+            activitySubtitle: document.getElementById('activity-subtitle'),
+            activityContent: document.getElementById('activity-content'),
+            backToDashboardBtn: document.getElementById('back-to-dashboard'),
+            messageModal: document.getElementById('message-modal'),
+            modalMessage: document.getElementById('modal-message'),
+            modalButtons: document.getElementById('modal-buttons'),
+            modalCloseBtn: document.getElementById('modal-close-button'),
+            loadingModal: document.getElementById('loading-modal'),
+        };
+
+        // ===================================================================
+        // == LOCAL STORAGE & DATA SYNCING                                  ==
+        // ===================================================================
+
+        function saveProgressLocally() {
+            try {
+                localStorage.setItem('starlightStudyProgress', JSON.stringify(appState));
+            } catch (e) {
+                console.error("Could not save progress to Local Storage:", e);
+            }
+        }
+
+        function loadProgressLocally() {
+            try {
+                const savedProgress = localStorage.getItem('starlightStudyProgress');
+                if (savedProgress) {
+                    const parsedProgress = JSON.parse(savedProgress);
+                    // Merge saved state carefully to avoid errors if structure changes
+                    appState.stardust = parsedProgress.stardust || 0;
+                    appState.dailyActivitiesCompleted = parsedProgress.dailyActivitiesCompleted || 0;
+                    if (parsedProgress.userData && parsedProgress.userData.stats) {
+                       Object.keys(appState.userData.stats).forEach(key => {
+                           if(parsedProgress.userData.stats[key]) {
+                               Object.assign(appState.userData.stats[key], parsedProgress.userData.stats[key]);
+                           }
+                       });
+                    }
+                }
+            } catch (e) {
+                console.error("Could not load progress from Local Storage:", e);
+                // If there's an error, just start with a fresh state
+                appState = createDefaultAppState();
+            }
+        }
+
+        function promptResetProgress() {
+            showConfirmation(
+                "Are you sure you want to reset all your progress? This cannot be undone.",
+                () => {
+                    localStorage.removeItem('starlightStudyProgress');
+                    window.location.reload();
+                }
+            );
+        }
+
+        // ===================================================================
+        // == UI & RENDER FUNCTIONS                                         ==
+        // ===================================================================
+        
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`${screenId}-screen`).classList.add('active');
+        }
+
+        function showMessage(message) {
+            elements.modalMessage.innerHTML = message.replace(/\n/g, '<br>');
+            elements.modalButtons.innerHTML = '<button id="modal-close-button" class="btn-primary">Got it!</button>';
+            document.getElementById('modal-close-button').addEventListener('click', () => elements.messageModal.classList.add('hidden'));
+            elements.messageModal.classList.remove('hidden');
+        }
+
+        function showConfirmation(message, onConfirm) {
+            elements.modalMessage.textContent = message;
+            elements.modalButtons.innerHTML = `
+                <button id="confirm-btn" class="btn-primary">Confirm</button>
+                <button id="cancel-btn" class="btn-secondary">Cancel</button>
+            `;
+            elements.messageModal.classList.remove('hidden');
+
+            document.getElementById('confirm-btn').onclick = () => {
+                elements.messageModal.classList.add('hidden');
+                onConfirm();
+            };
+            document.getElementById('cancel-btn').onclick = () => {
+                elements.messageModal.classList.add('hidden');
+            };
+        }
+        
+        function showLoading(show) {
+            elements.loadingModal.classList.toggle('hidden', !show);
+        }
+
+        function renderDashboard() {
+            elements.stardustCount.textContent = appState.stardust;
+            const progressPercent = Math.min(100, (appState.dailyActivitiesCompleted / appState.dailyGoal) * 100);
+            elements.dailyProgressBar.style.width = `${progressPercent}%`;
+            const remaining = Math.max(0, appState.dailyGoal - appState.dailyActivitiesCompleted);
+            elements.dailyProgressText.textContent = remaining > 0 ? `Complete ${remaining} more activities to reach your daily goal!` : `Daily goal achieved! Great work!`;
+            updateAdaptiveFocus();
+            elements.domainCardsContainer.innerHTML = '';
+            Object.keys(content).forEach(domainKey => {
+                const domain = content[domainKey];
+                const stats = appState.userData.stats[domainKey];
+                const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 'N/A';
+                const card = document.createElement('div');
+                card.className = 'glassmorphism p-6 rounded-xl flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-2">${domain.name}</h3>
+                        <p class="text-slate-300 mb-4">Quiz Accuracy: <span class="font-bold text-cyan-300">${accuracy}${accuracy !== 'N/A' ? '%' : ''}</span></p>
+                    </div>
+                    <div class="flex flex-col gap-3 mt-4">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                           <button class="btn-primary flex-1" onclick="startQuiz('${domainKey}')">Chart Course (Quiz)</button>
+                           <button class="btn-secondary flex-1" onclick="startFlashcards('${domainKey}')">Explore Stars (Cards)</button>
+                        </div>
+                        <button class="btn-gemini w-full" onclick="startAIPracticeQuestion('${domainKey}')">✨ AI Practice Question</button>
+                    </div>
+                `;
+                elements.domainCardsContainer.appendChild(card);
+            });
+        }
+
+        // ===================================================================
+        // == GEMINI API INTEGRATION                                        ==
+        // ===================================================================
+        
+        async function callGeminiApi(prompt) {
+            showLoading(true);
+            const apiKey = ""; // This will be handled by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                }
+                return "Sorry, the Celestial AI gave an unexpected response.";
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                return "There was a problem contacting the Celestial AI.";
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ===================================================================
+        // == ACTIVITY LOGIC (QUIZ, FLASHCARDS, AI FEATURES)                ==
+        // ===================================================================
+
+        let currentQuiz = {};
+        let currentFlashcards = {};
+        
+        function startQuiz(domainKey) {
+            currentQuiz = {
+                domainKey,
+                questions: [...content[domainKey].quiz].sort(() => 0.5 - Math.random()),
+                currentQuestionIndex: 0,
+            };
+            switchScreen('activity');
+            elements.activityTitle.textContent = 'Chart the Course';
+            elements.activitySubtitle.textContent = content[domainKey].name;
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            if (currentQuiz.currentQuestionIndex >= currentQuiz.questions.length) {
+                endQuiz();
+                return;
+            }
+            const question = currentQuiz.questions[currentQuiz.currentQuestionIndex];
+            elements.activityContent.innerHTML = `
+                <div class="w-full max-w-2xl text-center">
+                    <p class="text-xl md:text-2xl text-white mb-8">${question.q}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${question.a.map((answer, index) => `
+                            <button class="glassmorphism p-4 rounded-lg text-left hover:bg-cyan-400/30 transition-colors" onclick="checkAnswer(${index})">
+                                ${answer}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIndex) {
+            const question = currentQuiz.questions[currentQuiz.currentQuestionIndex];
+            const isCorrect = selectedIndex === question.correct;
+            const domainStats = appState.userData.stats[currentQuiz.domainKey];
+            domainStats.total++;
+            if (isCorrect) {
+                domainStats.correct++;
+                appState.stardust += 10;
+                showMessage("Correct! +10 Stardust!");
+            } else {
+                showMessage(`Not quite. The correct answer was: ${question.a[question.correct]}`);
+            }
+            domainStats.accuracy = domainStats.total > 0 ? domainStats.correct / domainStats.total : 0;
+            currentQuiz.currentQuestionIndex++;
+            saveProgressLocally();
+            document.getElementById('modal-close-button').onclick = () => {
+                elements.messageModal.classList.add('hidden');
+                renderQuizQuestion();
+            };
+        }
+        
+        function endQuiz() {
+            showMessage(`Quiz complete! You've navigated this constellation.`);
+            updateDailyProgress();
+            document.getElementById('modal-close-button').onclick = () => {
+                elements.messageModal.classList.add('hidden');
+                switchScreen('dashboard');
+                renderDashboard();
+            };
+        }
+
+        function startFlashcards(domainKey) {
+            currentFlashcards = {
+                domainKey,
+                cards: [...content[domainKey].flashcards].sort(() => 0.5 - Math.random()),
+                currentIndex: 0,
+            };
+            switchScreen('activity');
+            elements.activityTitle.textContent = 'Explore the Stars';
+            elements.activitySubtitle.textContent = content[domainKey].name;
+            renderFlashcard();
+        }
+
+        function renderFlashcard() {
+            if (currentFlashcards.currentIndex >= currentFlashcards.cards.length) {
+                endFlashcards();
+                return;
+            }
+            const card = currentFlashcards.cards[currentFlashcards.currentIndex];
+            elements.activityContent.innerHTML = `
+                <div class="w-full max-w-xl flex flex-col items-center">
+                    <div class="card-flip-container w-full h-64 md:h-80 mb-6" onclick="this.classList.toggle('flipped')">
+                        <div class="card-flipper">
+                            <div class="card-front glassmorphism text-2xl font-bold text-center text-white flex items-center justify-center p-4">${card.term}</div>
+                            <div class="card-back text-lg text-center text-white flex items-center justify-center p-4">${card.def}</div>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 mb-6">Click card to flip.</p>
+                    <div class="flex gap-4">
+                         <button class="btn-secondary" onclick="prevFlashcard()">Previous</button>
+                         <button class="btn-primary" onclick="nextFlashcard()">Next</button>
+                    </div>
+                    <button class="btn-gemini mt-6" onclick="explainConcept()">✨ Explain It Differently</button>
+                </div>
+            `;
+        }
+        
+        async function explainConcept() {
+            const card = currentFlashcards.cards[currentFlashcards.currentIndex];
+            const prompt = `For a social worker studying for their ASWB licensing exam, explain the concept of "${card.term}" in a simple, easy-to-understand way. You can use an analogy if it helps. The standard definition is: "${card.def}". Provide a fresh perspective.`;
+            const explanation = await callGeminiApi(prompt);
+            showMessage(explanation);
+        }
+
+        function nextFlashcard() {
+            currentFlashcards.currentIndex++;
+            appState.stardust += 1;
+            saveProgressLocally();
+            renderFlashcard();
+        }
+        
+        function prevFlashcard() {
+            currentFlashcards.currentIndex = Math.max(0, currentFlashcards.currentIndex - 1);
+            renderFlashcard();
+        }
+
+        function endFlashcards() {
+            showMessage(`You've finished exploring this star system!`);
+            updateDailyProgress();
+            document.getElementById('modal-close-button').onclick = () => {
+                elements.messageModal.classList.add('hidden');
+                switchScreen('dashboard');
+                renderDashboard();
+            };
+        }
+        
+        async function startAIPracticeQuestion(domainKey) {
+            switchScreen('activity');
+            elements.activityTitle.textContent = 'AI Practice Question';
+            elements.activitySubtitle.textContent = content[domainKey].name;
+            elements.activityContent.innerHTML = '<div class="loader"></div>';
+            
+            const prompt = `Generate a single multiple-choice practice question for the ASWB Clinical exam, relevant to the domain of "${content[domainKey].name}". The question should present a clinical scenario. Format the output as a clean JSON object (no markdown, no extra text) with these exact keys: "question" (string), "options" (an array of 4 strings), "correct_answer_index" (a number from 0 to 3), and "rationale" (a string explaining why the correct answer is best).`;
+            
+            const responseText = await callGeminiApi(prompt);
+
+            try {
+                const data = JSON.parse(responseText);
+                renderAIQuestion(data, domainKey);
+            } catch (error) {
+                console.error("Failed to parse AI response as JSON:", error);
+                elements.activityContent.innerHTML = `<p class="text-white text-center">The Celestial AI returned a cosmic anomaly. Please try generating another question.</p>`;
+            }
+        }
+
+        function renderAIQuestion(data, domainKey) {
+            const rationaleBase64 = btoa(data.rationale);
+            elements.activityContent.innerHTML = `
+                <div class="w-full max-w-2xl text-center">
+                    <p class="text-xl md:text-2xl text-white mb-8">${data.question}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${data.options.map((answer, index) => `
+                            <button class="glassmorphism p-4 rounded-lg text-left hover:bg-cyan-400/30 transition-colors" onclick="checkAIAnswer(${index}, ${data.correct_answer_index}, '${rationaleBase64}')">
+                                ${answer}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <button class="btn-gemini mt-8" onclick="startAIPracticeQuestion('${domainKey}')">✨ Generate Another</button>
+                </div>
+            `;
+        }
+
+        function checkAIAnswer(selectedIndex, correctIndex, rationaleBase64) {
+            const rationale = atob(rationaleBase64);
+            let message;
+            if (selectedIndex === correctIndex) {
+                appState.stardust += 15;
+                message = `<strong>Correct! +15 Stardust!</strong>\n\n<strong>Rationale:</strong> ${rationale}`;
+            } else {
+                message = `<strong>Not quite.</strong>\n\n<strong>Rationale:</strong> ${rationale}`;
+            }
+            showMessage(message);
+            updateDailyProgress();
+        }
+
+        async function getStudyPlan() {
+            let statsSummary = "The user has not attempted any quizzes yet.";
+            const attemptedDomains = Object.values(appState.userData.stats).filter(s => s.total > 0);
+            
+            if (attemptedDomains.length > 0) {
+                statsSummary = "Here are my current quiz performance stats:\\n" +
+                Object.values(appState.userData.stats).map(stat => 
+                    `- ${stat.name}: ${stat.total > 0 ? Math.round(stat.accuracy * 100) : 'N/A'}% accuracy`
+                ).join("\\n");
+            }
+
+            const prompt = `I am a social worker studying for the ASWB clinical exam using your app. ${statsSummary}\n\nBased on these stats, create a brief, encouraging, and actionable study plan for the next three days. Suggest specific topics to review and activities to focus on (like Quizzes, Flashcards, or AI-generated Practice Questions) within my weaker domains. If there are no stats, provide a general getting-started plan. Format the response with clear headings for each day.`;
+            
+            const plan = await callGeminiApi(prompt);
+            showMessage(plan);
+            updateDailyProgress();
+        }
+
+        // ===================================================================
+        // == CORE APP LOGIC                                                ==
+        // ===================================================================
+
+        function updateDailyProgress() {
+            appState.dailyActivitiesCompleted++;
+            saveProgressLocally();
+        }
+
+        function updateAdaptiveFocus() {
+            let lowestAccuracy = 1;
+            let focusDomainKey = null;
+            const attemptedDomains = Object.keys(appState.userData.stats).filter(key => appState.userData.stats[key].total > 0);
+            if (attemptedDomains.length === 0) {
+                elements.adaptiveFocusDomain.textContent = "Complete a quiz to get started!";
+                elements.adaptiveFocusCard.onclick = () => startQuiz('domain1');
+                return;
+            }
+            attemptedDomains.forEach(key => {
+                const stats = appState.userData.stats[key];
+                if (stats.accuracy <= lowestAccuracy) {
+                    lowestAccuracy = stats.accuracy;
+                    focusDomainKey = key;
+                }
+            });
+            if (!focusDomainKey) {
+                focusDomainKey = Object.keys(appState.userData.stats).find(key => appState.userData.stats[key].accuracy < 1) || 'domain1';
+            }
+            elements.adaptiveFocusDomain.textContent = appState.userData.stats[focusDomainKey].name;
+            elements.adaptiveFocusCard.onclick = () => startQuiz(focusDomainKey);
+        }
+        
+        function createStarfield() {
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                elements.starfield.appendChild(star);
+            }
+        }
+
+        // ===================================================================
+        // == INITIALIZATION & EVENT LISTENERS                              ==
+        // ===================================================================
+        function init() {
+            createStarfield();
+            loadProgressLocally();
+            renderDashboard();
+            
+            elements.studyPlanBtn.addEventListener('click', getStudyPlan);
+            elements.backToDashboardBtn.addEventListener('click', () => {
+                switchScreen('dashboard');
+                renderDashboard();
+            });
+            elements.reminderBtn.addEventListener('click', () => {
+                showMessage("Reminder set! We'll notify you to start your daily mission tomorrow.");
+            });
+            elements.resetProgressBtn.addEventListener('click', promptResetProgress);
+            
+            elements.modalCloseBtn.addEventListener('click', () => {
+                elements.messageModal.classList.add('hidden');
+            });
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !elements.messageModal.classList.add('hidden')) {
+                    elements.messageModal.classList.add('hidden');
+                }
+            });
+        }
+
+        // Run the app
+        init();
+    </script>
+</body>
+</html>
