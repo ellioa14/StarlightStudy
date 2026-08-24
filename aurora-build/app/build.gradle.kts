@@ -13,7 +13,7 @@ val mapsApiKey = secrets.getProperty("MAPS_API_KEY", "")
 
 android {
     namespace = "com.example.aurorascout"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.aurorascout"
